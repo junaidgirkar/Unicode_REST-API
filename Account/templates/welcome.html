@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WELCOME</title>
+</head>
+<body>
+User : {{ user }}<br>
+<div align="center">
+<a align="center" href="{% url 'login' %}"><h3>LOGIN</h3></a>
+<a align="center" href="{% url 'logout' %}"><h3>LOGOUT</h3></a>
+<a align="center" href="{% url 'logoutall' %}"><h3>LOGOUT ALL</h3></a>
+<a align="center" href="{% url 'user-register' %}"><h3>User Regiteration</h3></a>
+<a align="center" href="{% url 'student-register' %}"><h3>Student Registeration</h3></a>
+<a align="center" href="{% url 'teacher-register' %}"><h3>Teacher Registeration</h3></a>
+<a align="center" href="{% url 'user-display-all' %}"><h3>User Display All</h3></a>
+<a align="center" href="{% url 'user-display-single' pk=1%}"><h3>User Display Specific</h3></a>
+<a align="center" href="{% url 'student-display-all' %}"><h3>Student Display All</h3></a>
+<a align="center" href="{% url 'student-display-single' pk=1%}"><h3>Student Display Specific</h3></a>
+<a align="center" href="{% url 'teacher-display-all' %}"><h3>Teacher Display All</h3></a>
+<a align="center" href="{% url 'teacher-display-single' pk=1%}"><h3>Teacher Display Specific</h3></a>
+</div>
+
+</body>
+</html>

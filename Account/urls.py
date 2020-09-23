@@ -16,36 +16,34 @@ Including another URLconf
 from django.urls import path, include
 from knox import views as knox_views
 from knox.views import LogoutView
-
-from .api import UserAPIView,CreateUserView, RegisterAPIView, LoginAPIView, StudentRegisterAPIView, UserDisplayView, StudentDisplayView, TeacherDisplayView
-from .api import TeacherRegisterAPIView, RegisterAPI1
+from Account.views import welcomePage
 from .api import *
 urlpatterns = [
 # WORKING STUFF:
-    path('api/register/', RegisterAPI1.as_view(), name='register'),
-    path('api/logout/', knox_views.LogoutView.as_view(), name='logout'),
-    path('api/logoutall/', knox_views.LogoutAllView.as_view(), name='logoutall'),
+    path('user-register/', RegisterUser.as_view(), name='user-register'),
+    path('student-register/', RegisterStudent.as_view(), name='student-register'),
+    path('teacher-register/', RegisterTeacher.as_view(), name='teacher-register'),
+
+    path('login/', LoginAPIView.as_view(), name='login'),
+    path('logout/', knox_views.LogoutView.as_view(), name='logout'),
+    path('logoutall/', knox_views.LogoutAllView.as_view(), name='logoutall'),
 
 
+    path('users-display/', UserDisplayView.as_view(), name='user-display-all'),
+    path('users-display/<int:pk>/', UserDisplayView.as_view(), name='user-display-single'),
+
+    path('students-display/', StudentDisplayView.as_view(), name='student-display-all'),
+    path('students-display/<int:pk>/', UserDisplayView.as_view(), name='student-display-single'),
+
+    path('teachers-display/', TeacherDisplayView.as_view(), name='teacher-display-all'),
+    path('teachers-display/<int:pk>/', UserDisplayView.as_view(), name='teacher-display-single'),
 
 
-    path('', include('knox.urls')),
-    path('users-display/', UserDisplayView.as_view()),
-    path('students-display/', StudentDisplayView.as_view()),
-    path('teachers-display/', TeacherDisplayView.as_view()),
-
+    path('', welcomePage),
     path('user/', UserAPIView.as_view()),
-    #path('user-register/', views.create_auth),
-    path('user-register/', CreateUserView.as_view()),
-    path('student-register/', StudentRegisterAPIView.as_view()),
-    path('teacher-register/', TeacherRegisterAPIView.as_view()),
-
-    path('login1/', LoginAPIView.as_view()),
-    path('logout1/', LogoutView.as_view(), name='knox_logout'),
-
-    #"""     NEW STUFF       """
 
 
-    #path('api/login/', LoginAPI.as_view(), name='login'),
+   # path('logout1/', LogoutView.as_view(), name='knox_logout'),
+
 
 ]

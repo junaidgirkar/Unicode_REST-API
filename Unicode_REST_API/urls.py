@@ -18,6 +18,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('Account.urls')),
+    path('account/', include('Account.urls')),
+    path('', include('knox.urls')),
     #path('api/auth/', include('Account.urls')),  # added
 ]

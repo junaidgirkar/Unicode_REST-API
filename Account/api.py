@@ -5,10 +5,10 @@ from knox.models import AuthToken
 from .models import *
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
-from .serializers import UserSerializer,UserRegisterSerializer ,RegisterSerializer, LoginSerializer, StudentRegisterSerializer, StudentSerializer, StudentDisplaySerializer, TeacherDisplaySerializer
-from .serializers import TeacherRegisterSerializer, RegisterSerializer1
+from .serializers import UserSerializer,UserRegisterSerializer ,RegisterSerializer, LoginSerializer, StudentSerializer, StudentDisplaySerializer, TeacherDisplaySerializer
+from .serializers import RegisterSerializer1,StudentRegisterSerializer1, TeacherRegisterSerializer1
 from django.contrib.auth import login
-
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
@@ -30,7 +30,7 @@ class UserDisplayView(APIView):
             serializer = UserSerializer(user)
             return Response({"user": serializer.data})
         users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+        serializer = TeacherDisplaySerializer(users, many=True)
         return Response({"users": serializer.data})
 
 
@@ -41,7 +41,7 @@ class StudentDisplayView(APIView):
             serializer = StudentDisplaySerializer(student)
             return Response({"student": serializer.data})
         students = Student.objects.all()
-        serializer = UserSerializer(students, many=True)
+        serializer = StudentDisplaySerializer(students, many=True)
         return Response({"students": serializer.data})
 
 
@@ -87,28 +87,6 @@ class RegisterAPIView(generics.CreateAPIView):
    #     })
 
 
-class StudentRegisterAPIView(generics.GenericAPIView):
-    '''model = Student
-    permission_classes = [
-        permissions.AllowAny# Or anon users can't register
-    ]
-    serializer_class = StudentRegisterSerializer'''
-
-    permission_classes = (permissions.AllowAny,)
-    http_method_names = ['get', 'head']
-    def get(self, request, format=None):
-        users = Student.objects.all()
-        serializer = StudentRegisterSerializer(users, many=True)
-        return Response(serializer.data)
-
-
-class TeacherRegisterAPIView(generics.GenericAPIView):
-    model = Teacher
-    permission_classes = [
-        permissions.AllowAny# Or anon users can't register
-    ]
-    serializer_class = TeacherRegisterSerializer
-
 
 
 class LoginAPIView(generics.GenericAPIView):
@@ -129,7 +107,7 @@ class LoginAPIView(generics.GenericAPIView):
 
 
 
-class RegisterAPI1(generics.GenericAPIView):
+class RegisterUser(generics.GenericAPIView):
     serializer_class = RegisterSerializer1
 
     def post(self, request, *args, **kwargs):
@@ -138,6 +116,31 @@ class RegisterAPI1(generics.GenericAPIView):
         user = serializer.save()
         return Response({
         "user": UserSerializer(user, context=self.get_serializer_context()).data,
+        "token": AuthToken.objects.create(user)[1]
+        })
+
+class RegisterStudent(generics.GenericAPIView):
+    serializer_class = StudentRegisterSerializer1
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+        "user": StudentDisplaySerializer(user, context=self.get_serializer_context()).data,
+        "token": AuthToken.objects.create(user)[1]
+        })
+
+
+class RegisterTeacher(generics.GenericAPIView):
+    serializer_class = TeacherRegisterSerializer1
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+        "user": TeacherDisplaySerializer(user, context=self.get_serializer_context()).data,
         "token": AuthToken.objects.create(user)[1]
         })
 

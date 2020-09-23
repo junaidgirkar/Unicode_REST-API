@@ -28,47 +28,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         fields = ( "id", "email", "password", )
 
 
-class StudentRegisterSerializer(serializers.ModelSerializer):
-
-    password = serializers.CharField(write_only=True)
-
-    def create(self, validated_data):
-
-        user = User.objects.create(
-            email=validated_data['email']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-
-        return user
-
-    class Meta:
-        model = Student
-        # Tuple of serialized model fields (see link [2])
-        fields = ( "id", "email", "password", )
-
-
-
-class TeacherRegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
-    def create(self, validated_data):
-
-        user = User.objects.create(
-            email=validated_data['email']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-
-        return user
-
-    class Meta:
-        model = Teacher
-        # Tuple of serialized model fields (see link [2])
-        fields = ( "id", "email", "password", )
-
-
-
 
 
 
@@ -89,21 +48,20 @@ class UserSerializer(serializers.Serializer):
     def create(self, validated_data):
         return User.objects.create(**validated_data)
 
+
 class StudentDisplaySerializer(serializers.Serializer):
     id = serializers.CharField()
-    is_student = serializers.BooleanField(default = True)
+    #is_student = serializers.BooleanField(default = True)
     first_name = serializers.CharField(max_length=255)
     last_name = serializers.CharField(max_length=255)
     email = serializers.CharField(max_length=255)
-    #is_m = serializers.CharField(max_length=255, default="True")
-    #password = serializers.PasswordField()
 
     def create(self, validated_data):
         return Student.objects.create(**validated_data)
 
 class TeacherDisplaySerializer(serializers.Serializer):
     id = serializers.CharField()
-    is_student = serializers.BooleanField(default = True)
+    #is_student = serializers.BooleanField(default = True)
     first_name = serializers.CharField(max_length=255)
     last_name = serializers.CharField(max_length=255)
     email = serializers.CharField(max_length=255)
@@ -170,3 +128,26 @@ class RegisterSerializer1(serializers.ModelSerializer):
         user = User.objects.create_user(email=validated_data['email'],password= validated_data['password'], last_name= validated_data['last_name'],first_name= validated_data['first_name'])
 
         return user
+
+class StudentRegisterSerializer1(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ('id', 'email','first_name', 'last_name','branch', 'is_student', 'is_teacher', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = Student.objects.create_user(email=validated_data['email'],password= validated_data['password'],branch=validated_data['branch'],is_student=validated_data['is_student'], is_teacher=validated_data['is_teacher'],  last_name= validated_data['last_name'],first_name= validated_data['first_name'])
+
+        return user
+
+class TeacherRegisterSerializer1(serializers.ModelSerializer):
+    class Meta:
+        model = Teacher
+        fields = ('id', 'email','first_name', 'last_name','is_student', 'is_teacher', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = Teacher.objects.create_user(email=validated_data['email'],password= validated_data['password'],is_student=validated_data['is_student'], is_teacher=['is_teacher'], last_name= validated_data['last_name'],first_name= validated_data['first_name'])
+
+        return user
+
