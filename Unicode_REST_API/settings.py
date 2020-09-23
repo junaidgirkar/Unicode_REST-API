@@ -124,10 +124,18 @@ USE_TZ = True
 STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'Account.User'
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES':('knox.auth.TokenAuthentication',)
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        #'rest_framework.authentication.BasicAuthentication',
+        #'rest_framework.authentication.SessionAuthentication',
+        'knox.auth.TokenAuthentication',
+    ],
 }
-REST_KNOX = {
-    'TOKEN_TTL': None,
-    'TOKEN_LIMIT_PER_USER': None,
-}
+#    """'DEFAULT_AUTHENTICATION_CLASSES': (
+#       'rest_framework.authentication.TokenAuthentication',
+#    ),
+#    'DEFAULT_PERMISSION_CLASSES': (
+#        'rest_framework.permissions.IsAdminUser'
+#    ),
+#    """
+
 

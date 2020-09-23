@@ -23,10 +23,10 @@ class UserManager(BaseUserManager):
 class StudentManager(BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, email, is_student, is_teacher, first_name, last_name, password=None, **extra_fields):
+    def create_user(self, email, is_student, is_teacher,branch, first_name, last_name, password=None, **extra_fields):
         if not email:
             raise ValueError('Users must have an email address')
-        user = self.model(first_name=first_name, last_name=last_name, email=self.normalize_email(email),is_student = True, is_teacher = False)
+        user = self.model(first_name=first_name, last_name=last_name,branch=branch, email=self.normalize_email(email),is_student = True, is_teacher = False)
         user.set_password(password)
         user.save(using = self._db)
         return user
