@@ -26,7 +26,7 @@ The CRUD app is regulated using *is_student*, *is_teacher* and *is_authenticated
 3. Create a new virtual environment activate it.
     ```shell
     $ python3 -m venv env
-    $ source env/bin/activate
+    $ env/bin/activate
     ```
 4. Install dependencies from requirements.txt:
     ```shell
