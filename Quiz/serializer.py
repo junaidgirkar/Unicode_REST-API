@@ -16,7 +16,7 @@ class QuestionsDisplaySerializer(serializers.ModelSerializer):
 class RegisterQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = '__all__'
+        fields = ['question_text', 'option1', 'option2', 'option3', 'option4', 'correct_answer']
 
 class RegisterQuizSerializer(serializers.ModelSerializer):
 
