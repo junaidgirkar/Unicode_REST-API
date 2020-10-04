@@ -21,7 +21,7 @@ The CRUD app is regulated using *is_student*, *is_teacher* and *is_authenticated
     ```
 2. `cd` intro the project directory
     ```shell
-    $ cd Training-Unicode-Communication
+    $ cd Unicode_REST-API
     ```
 3. Create a new virtual environment activate it.
     ```shell
@@ -52,4 +52,4 @@ Pull requests are welcome. For major
 changes, please open an issue first 
 to discuss what you would like to change.
 
-=======
+===================================
