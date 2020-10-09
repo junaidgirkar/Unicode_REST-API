@@ -132,22 +132,22 @@ class RegisterSerializer1(serializers.ModelSerializer):
 class StudentRegisterSerializer1(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ('id', 'email','first_name', 'last_name','branch', 'is_student', 'is_teacher', 'password')
+        fields = ('id', 'email','first_name', 'last_name','sap_id','branch', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = Student.objects.create_user(email=validated_data['email'],password= validated_data['password'],branch=validated_data['branch'],is_student=validated_data['is_student'], is_teacher=validated_data['is_teacher'],  last_name= validated_data['last_name'],first_name= validated_data['first_name'])
+        user = Student.objects.create_user(email=validated_data['email'],sap_id=validated_data['sap_id'],password= validated_data['password'],branch=validated_data['branch'],is_student=True, is_teacher=False,  last_name= validated_data['last_name'],first_name= validated_data['first_name'])
 
         return user
 
 class TeacherRegisterSerializer1(serializers.ModelSerializer):
     class Meta:
         model = Teacher
-        fields = ('id', 'email','first_name', 'last_name','is_student', 'is_teacher', 'password')
+        fields = ('id', 'email','first_name', 'last_name', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = Teacher.objects.create_user(email=validated_data['email'],password= validated_data['password'],is_student=validated_data['is_student'], is_teacher=['is_teacher'], last_name= validated_data['last_name'],first_name= validated_data['first_name'])
+        user = Teacher.objects.create_user(email=validated_data['email'],password= validated_data['password'],is_student=False, is_teacher=True, last_name= validated_data['last_name'],first_name= validated_data['first_name'])
 
         return user
 
