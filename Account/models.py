@@ -48,7 +48,7 @@ class Student(User):
     user.is_student = True
     user.is_teacher = False
     branch = models.CharField(max_length=40)
-
+    sap_id = models.CharField(max_length=12, default=0, blank=True)
     objects = StudentManager()
 
     USERNAME_FIELD = 'email'
