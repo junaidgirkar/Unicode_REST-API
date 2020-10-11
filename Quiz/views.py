@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics
+from Account.models import Student
 from Quiz.models import Quiz, Question, Answer
 from .serializer import QuizDisplaySerializer, RegisterQuizSerializer, RegisterQuestionSerializer, QuestionsDisplaySerializer, TakeQuizSerializer
 from knox.models import AuthToken
@@ -160,3 +161,25 @@ class TakeQuiz(generics.GenericAPIView):
         for question in questions:
             question.pop('correct_answer')
         return Response(questions)
+
+    def post(self, request, quiz_id):
+        serializer = TakeQuizSerializer(many=True, data=request.data)
+        student = Student.objects.get(email=request.user)
+        quiz = Quiz.objects.get(id=quiz_id)
+        if serializer.is_valid:
+            marks = 0
+            for data in serializer.validated_data:
+                question_id = data['question']
+                answer = data['answer']
+
+                data["question"] = Question.objects.get(
+                    quiz=quiz, id=question_id)
+                data["student"] = student
+                if data['answer'] == Question.objects.get(id=question_id, quiz=quiz).correct_answer:
+                    marks = marks + 1
+            Result.objects.create(student=student, quiz=quiz, score=marks)
+            print(serializer.validated_data)
+            serializer.save()
+            return Response({'response': 'Quiz attempted successfully'})
+        else:
+            return Response(serializer.errors)
