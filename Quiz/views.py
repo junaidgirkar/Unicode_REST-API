@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from Account.models import Student
-from Quiz.models import Quiz, Question, Answer
+from Account.models import Student, Teacher
+from Quiz.models import Quiz, Question, Answer, Result
 from .serializer import QuizDisplaySerializer, RegisterQuizSerializer, RegisterQuestionSerializer, QuestionsDisplaySerializer, TakeQuizSerializer
 from knox.models import AuthToken
 from django.http import Http404
@@ -163,19 +163,20 @@ class TakeQuiz(generics.GenericAPIView):
         return Response(questions)
 
     def post(self, request, quiz_id):
-        serializer = TakeQuizSerializer(many=True, data=request.data)
-        student = Student.objects.get(email=request.user)
+        serializer = TakeQuizSerializer(data=request.data)
+        student = Student.objects.get(email=request.user.email)
         quiz = Quiz.objects.get(id=quiz_id)
-        if serializer.is_valid:
+        if serializer.is_valid():
             marks = 0
+
             for data in serializer.validated_data:
                 question_id = data['question']
                 answer = data['answer']
 
                 data["question"] = Question.objects.get(
                     quiz=quiz, id=question_id)
-                data["student"] = student
-                if data['answer'] == Question.objects.get(id=question_id, quiz=quiz).correct_answer:
+                data["student"] = Student.objects.get(email=request.user.email)
+                if answer == Question.objects.get(id=question_id, quiz=quiz).correct_answer:
                     marks = marks + 1
             Result.objects.create(student=student, quiz=quiz, score=marks)
             print(serializer.validated_data)
@@ -183,3 +184,27 @@ class TakeQuiz(generics.GenericAPIView):
             return Response({'response': 'Quiz attempted successfully'})
         else:
             return Response(serializer.errors)
+
+
+class Result(generics.GenericAPIView):
+    #permission_classes = [IsAuthenticated]
+    queryset = Result.objects.all()
+
+    def get(self, request, quiz_id):
+        if request.user.is_student:
+            student = Student.objects.get(email=request.user.email)
+            quiz = Quiz.objects.get(id=quiz_id)
+
+            if Result.objects.filter(quiz=quiz, student=student).exists():
+                user = Result.objects.get(quiz=quiz, student=student)
+                data = {
+                    "Obtained": user.score,
+                }
+                return Response(data)
+            else:
+                return Response("Student had not attempted the quiz yet")
+        else:
+            teacher = Teacher.objects.get(email=request.user.email)
+            quiz = Quiz.objects.get(id=quiz_id, teacher=teacher)
+            result = list(Result.objects.filter(quiz=quiz).values())
+            return Response(result)
