@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
 from Account.models import Student, Teacher
-from Quiz.models import Quiz, Question, Answer, Result
+from Quiz.models import Quiz, Question, Answer, Result as QuizResult
 from .serializer import QuizDisplaySerializer, RegisterQuizSerializer, RegisterQuestionSerializer, QuestionsDisplaySerializer, TakeQuizSerializer
 from knox.models import AuthToken
 from django.http import Http404
@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import redirect
 from django.db.models import Count
+from .permissions import *
 # Create your views here.
 
 ### This Signifies New Biginning ###
@@ -17,7 +18,7 @@ from django.db.models import Count
 
 class RegisterQuestions(generics.GenericAPIView):
     serializer_class = RegisterQuestionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTeacher]
 
     def post(self, request, quiz_id, *args, **kwargs):
         serializer = RegisterQuestionSerializer(data=request.data)
@@ -46,7 +47,7 @@ class RegisterQuestions(generics.GenericAPIView):
 
 class QuestionsDisplay(generics.GenericAPIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTeacher]
 
     def get(self, request, quiz_id, *args, **kwargs):
         specific_quiz = Quiz.objects.get(id=quiz_id)
@@ -58,7 +59,7 @@ class QuestionsDisplay(generics.GenericAPIView):
 
 
 class QuizDisplay(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTeacher]
 
     def get(self, request, *args, **kwargs):
         if request.user.is_student:
@@ -72,7 +73,7 @@ class QuizDisplay(generics.GenericAPIView):
 
 
 class DeleteQuiz(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTeacher]
 
     def get(self, request, quiz_id, *args, **kwargs):
         try:
@@ -90,7 +91,7 @@ class DeleteQuiz(generics.GenericAPIView):
 
 
 class DeleteQuestion(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTeacher]
 
     def get(self, request, question_id, *args, **kwargs):
         try:
@@ -106,7 +107,7 @@ class DeleteQuestion(generics.GenericAPIView):
 
 
 class RegisterQuiz(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTeacher]
     serializer_class = RegisterQuizSerializer
 
     def post(self, request, *args, **kwargs):
@@ -118,7 +119,7 @@ class RegisterQuiz(generics.GenericAPIView):
 
 
 class UpdateQuestion(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated], IsTeacher
     serializer_class = RegisterQuestionSerializer
 
     def post(self, request, *args, **kwargs):
@@ -133,7 +134,7 @@ class UpdateQuestion(generics.GenericAPIView):
 
 
 class UpdateQuiz(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTeacher]
     serializer_class = RegisterQuizSerializer
 
     def post(self, request, quiz_id, *args, **kwargs):
@@ -149,7 +150,7 @@ class UpdateQuiz(generics.GenericAPIView):
 #### STUDENT STUFF  ####
 
 class TakeQuiz(generics.GenericAPIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsStudent]
     serializer_class = TakeQuizSerializer
     queryset = Answer.objects.all()
 
@@ -169,16 +170,18 @@ class TakeQuiz(generics.GenericAPIView):
         if serializer.is_valid():
             marks = 0
 
-            for data in serializer.validated_data:
-                question_id = data['question']
-                answer = data['answer']
+            # for data in serializer.validated_data:
 
-                data["question"] = Question.objects.get(
-                    quiz=quiz, id=question_id)
-                data["student"] = Student.objects.get(email=request.user.email)
-                if answer == Question.objects.get(id=question_id, quiz=quiz).correct_answer:
-                    marks = marks + 1
-            Result.objects.create(student=student, quiz=quiz, score=marks)
+            question_id = serializer.validated_data['question']
+            answer = serializer.validated_data['answer']
+
+            serializer.validated_data["question"] = Question.objects.get(
+                quiz=quiz, id=question_id)
+            serializer.validated_data["student"] = Student.objects.get(
+                email=request.user.email)
+            if answer == Question.objects.get(id=question_id, quiz=quiz).correct_answer:
+                marks = marks + 1
+            QuizResult.objects.create(student=student, quiz=quiz, score=marks)
             print(serializer.validated_data)
             serializer.save()
             return Response({'response': 'Quiz attempted successfully'})
@@ -187,22 +190,22 @@ class TakeQuiz(generics.GenericAPIView):
 
 
 class Result(generics.GenericAPIView):
-    #permission_classes = [IsAuthenticated]
-    queryset = Result.objects.all()
+    permission_classes = [IsAuthenticated]
+    queryset = QuizResult.objects.all()
 
     def get(self, request, quiz_id):
         if request.user.is_student:
             student = Student.objects.get(email=request.user.email)
             quiz = Quiz.objects.get(id=quiz_id)
 
-            if Result.objects.filter(quiz=quiz, student=student).exists():
-                user = Result.objects.get(quiz=quiz, student=student)
+            if QuizResult.objects.filter(quiz=quiz, student=student).exists():
+                user = QuizResult.objects.get(quiz=quiz, student=student)
                 data = {
-                    "Obtained": user.score,
+                    "Score": user.score,
                 }
                 return Response(data)
             else:
-                return Response("Student had not attempted the quiz yet")
+                return Response("Quiz has not been taken yet")
         else:
             teacher = Teacher.objects.get(email=request.user.email)
             quiz = Quiz.objects.get(id=quiz_id, teacher=teacher)

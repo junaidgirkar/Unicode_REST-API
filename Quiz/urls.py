@@ -14,9 +14,10 @@ urlpatterns = [
     path('questions-display/<int:quiz_id>/',
          QuestionsDisplay.as_view(), name='questions-display-all'),
 
-    path('update-question/<question_id>/',
+    path('update-question/<int:question_id>/',
          UpdateQuestion.as_view(), name='question-update'),
     path('update-quiz/<quiz_id>/', UpdateQuiz.as_view(), name='quiz-update'),
 
     path('take-quiz/<quiz_id>/', TakeQuiz.as_view(), name='take-quiz'),
+    path('result/<quiz_id>/', Result.as_view(), name='result'),
 ]

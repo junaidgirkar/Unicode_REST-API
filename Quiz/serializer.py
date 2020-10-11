@@ -53,6 +53,8 @@ class TakeQuizSerializer(serializers.ModelSerializer):
         many = kwargs.pop('many', True)
         super(TakeQuizSerializer, self).__init__(many=many, *args, **kwargs)
 
+    question = serializers.IntegerField()
+
     class Meta:
         model = Answer
         fields = ['question', 'answer']

@@ -3,6 +3,7 @@ from Account.models import Student, Teacher
 
 # Create your models here.
 
+
 class Quiz(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     subject = models.CharField(max_length=255)
@@ -10,6 +11,7 @@ class Quiz(models.Model):
 
     def __str__(self):
         return self.subject + "_ID:" + str(self.id)
+
     class Meta:
         verbose_name_plural = 'Quizzes'
 
@@ -21,18 +23,19 @@ class Question(models.Model):
     option2 = models.CharField(max_length=255, default='Option2')
     option3 = models.CharField(max_length=255, default='Option3')
     option4 = models.CharField(max_length=255, default='Option4')
-    correct_answer = models.CharField(max_length=255, default = 'CorrectAnswer')
+    correct_answer = models.CharField(max_length=255, default='CorrectAnswer')
 
     def __str__(self):
-        return self.quiz.subject + "."+ str(self.id)
+        return str(self.id)
+
 
 class Answer(models.Model):
-    student = models.ForeignKey(Student, on_delete = models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
     answer = models.CharField(max_length=255)
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.student.email + "."+ str(self.question.id)+"."+ str(self.id)
+        return self.student.email + "." + str(self.question.id)+"." + str(self.id)
 
 
 class Result(models.Model):
