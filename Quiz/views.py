@@ -23,8 +23,9 @@ from rest_framework import viewsets, mixins
 
 
 class QuizViewSet(viewsets.ModelViewSet):
-
-    serializer_class = QuizSerializer
+    def get_serializer_class(self):
+        return QuizSerializer
+    # serializer_class = get_serializer_class()
     queryset = Quiz.objects.all()
     permission_classes = [IsAuthenticated, IsTeacher]
 
@@ -32,17 +33,33 @@ class QuizViewSet(viewsets.ModelViewSet):
         return Quiz.objects.all()
 
 
-class QuestionViewSet(viewsets.ModelViewSet):
+class QuestionViewSet(mixins.CreateModelMixin,
+                      mixins.ListModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.UpdateModelMixin,
+                      mixins.DestroyModelMixin,
+                      viewsets.GenericViewSet):
 
-    serializer_class = QuestionSerializer
+    #serializer_class = QuestionSerializer
     queryset = Question.objects.all()
     permission_classes = [IsAuthenticated, IsTeacher]
 
     def get_queryset(self):
         return Question.objects.all()
 
+    def get_serializer_class(self):
+        return QuestionSerializer
+
+    def get_object(self, queryset=None):
+
+        obj = super(QuestionViewSet, self).get_object(queryset)
+        if not self.has_permission(self.request, obj):
+            self.permission_denied(self.request)
+        return obj
+
 
 class RegisterQuestions(generics.GenericAPIView):
+    queryset = Question.objects.all()
     serializer_class = RegisterQuestionSerializer
     permission_classes = [IsAuthenticated, IsTeacher]
 

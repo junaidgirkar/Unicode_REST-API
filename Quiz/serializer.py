@@ -9,9 +9,12 @@ class QuizSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
+    quizserializer = QuizSerializer(read_only=True)
+
     class Meta:
         model = Question
-        fields = '__all__'
+        fields = ['id', 'quiz', 'quizserializer', 'question_text', 'option1',
+                  'option2', 'option3', 'option4', 'correct_answer']
 
 
 class QuizDisplaySerializer(serializers.ModelSerializer):
