@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from Account.models import Student, Teacher
 from Quiz.models import Quiz, Question, Answer, Result as QuizResult
+from .serializer import QuizSerializer, QuestionSerializer
 from .serializer import QuizDisplaySerializer, RegisterQuizSerializer, RegisterQuestionSerializer, QuestionsDisplaySerializer, TakeQuizSerializer
 from knox.models import AuthToken
 from django.http import Http404
@@ -11,9 +12,34 @@ from rest_framework.response import Response
 from django.shortcuts import redirect
 from django.db.models import Count
 from .permissions import *
+from rest_framework import viewsets, mixins
+
 # Create your views here.
 
 ### This Signifies New Biginning ###
+##
+
+# Two ModelViewsets. One for Quiz and another for Question
+
+
+class QuizViewSet(viewsets.ModelViewSet):
+
+    serializer_class = QuizSerializer
+    queryset = Quiz.objects.all()
+    permission_classes = [IsAuthenticated, IsTeacher]
+
+    def get_queryset(self):
+        return Quiz.objects.all()
+
+
+class QuestionViewSet(viewsets.ModelViewSet):
+
+    serializer_class = QuestionSerializer
+    queryset = Question.objects.all()
+    permission_classes = [IsAuthenticated, IsTeacher]
+
+    def get_queryset(self):
+        return Question.objects.all()
 
 
 class RegisterQuestions(generics.GenericAPIView):

@@ -1,8 +1,14 @@
 from django.urls import path, include
 from Quiz.views import *
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+
+router.register('router-quiz', QuizViewSet)
+router.register('router-question', QuestionViewSet)
 
 urlpatterns = [
-
+    path('', include(router.urls)),
     path('create-quiz/', RegisterQuiz.as_view(), name='create-quiz'),
     path('quiz-display/', QuizDisplay.as_view(), name='quiz-display-all'),
     path('quiz-delete/<int:quiz_id>/', DeleteQuiz.as_view(), name='delete_quiz'),

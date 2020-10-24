@@ -2,6 +2,18 @@ from rest_framework import serializers
 from Quiz.models import Quiz, Question, Answer
 
 
+class QuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = '__all__'
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = '__all__'
+
+
 class QuizDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
@@ -25,7 +37,7 @@ class RegisterQuestionSerializer(serializers.ModelSerializer):
 
 class RegisterQuizSerializer(serializers.ModelSerializer):
 
-    def addQuestion(self, validated_data):
+    """def addQuestion(self, validated_data):
 
         quiz = Quiz.objects.create(
             question_text=validated_data['question_text'],
@@ -42,10 +54,15 @@ class RegisterQuizSerializer(serializers.ModelSerializer):
         quiz.save()
 
         return quiz
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(RegisterQuizSerializer, self).__init__(*args, **kwargs)
+        teacher = self.context['request'].user
 
     class Meta:
         model = Quiz
-        fields = '__all__'
+        fields = ['subject', 'total_questions', 'teacher']
 
 
 class TakeQuizSerializer(serializers.ModelSerializer):
