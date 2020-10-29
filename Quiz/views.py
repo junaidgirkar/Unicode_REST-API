@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from Account.models import Student, Teacher
 from Quiz.models import Quiz, Question, Answer, Result as QuizResult
+from .serializer import QuizSerializer, QuestionSerializer
 from .serializer import QuizDisplaySerializer, RegisterQuizSerializer, RegisterQuestionSerializer, QuestionsDisplaySerializer, TakeQuizSerializer
 from knox.models import AuthToken
 from django.http import Http404
@@ -11,12 +12,54 @@ from rest_framework.response import Response
 from django.shortcuts import redirect
 from django.db.models import Count
 from .permissions import *
+from rest_framework import viewsets, mixins
+
 # Create your views here.
 
 ### This Signifies New Biginning ###
+##
+
+# Two ModelViewsets. One for Quiz and another for Question
+
+
+class QuizViewSet(viewsets.ModelViewSet):
+    def get_serializer_class(self):
+        return QuizSerializer
+    # serializer_class = get_serializer_class()
+    queryset = Quiz.objects.all()
+    permission_classes = [IsAuthenticated, IsTeacher]
+
+    def get_queryset(self):
+        return Quiz.objects.all()
+
+
+class QuestionViewSet(mixins.CreateModelMixin,
+                      mixins.ListModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.UpdateModelMixin,
+                      mixins.DestroyModelMixin,
+                      viewsets.GenericViewSet):
+
+    #serializer_class = QuestionSerializer
+    queryset = Question.objects.all()
+    permission_classes = [IsAuthenticated, IsTeacher]
+
+    def get_queryset(self):
+        return Question.objects.all()
+
+    def get_serializer_class(self):
+        return QuestionSerializer
+
+    def get_object(self, queryset=None):
+
+        obj = super(QuestionViewSet, self).get_object(queryset)
+        if not self.has_permission(self.request, obj):
+            self.permission_denied(self.request)
+        return obj
 
 
 class RegisterQuestions(generics.GenericAPIView):
+    queryset = Question.objects.all()
     serializer_class = RegisterQuestionSerializer
     permission_classes = [IsAuthenticated, IsTeacher]
 
